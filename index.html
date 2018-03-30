@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pokemon Catch Success</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<script>
+    function onClick() {
+        var target = $("#pokename").val().toLowerCase();
+
+        $.ajax({
+            url: "https://pokeapi.co/api/v2/pokemon/" + target + "/",
+            crossOrigin: true,
+            cache: true,
+            type: 'GET',
+            accept: 'application/json'
+        }).done(function (data) {
+            console.log(data);
+            var imgLoc = data.sprites.front_default;
+            var modifiable = $("#description");
+
+            modifiable.find("#image #poke_front").attr("src", imgLoc);
+
+            //Set the individual values
+            modifiable.find("#info_table #id").text(data.id);
+
+            //TODO: reduce
+            var types = "";
+
+            for(var type in data.types) {
+                types += data.types[type].type.name + " ";
+            }
+
+            types = types.trim();
+            console.log(types);
+
+            modifiable.find("#info_table #type").text(types);
+            modifiable.find("#info_table #weight").text((data.height/10) + " KG");
+            modifiable.find("#info_table #height").text((data.weight/100) + " M");
+
+            //Now the graph
+        }).fail(function (xhr, textStatus, error) {
+            //TODO: modal message
+            alert("This pokemon does not exist!");
+        });
+    }
+</script>
+<div id="header">
+    <span id="welcome">Poke Catcher!</span>
+    <span id="searchbar">
+        <!-- Not going to do this using PHP because I'd rather use JS listeners -->
+        <label for="pokename">Enter Pokemon name: </label><input type="text" name="pokename" id="pokename">
+        <input type="submit" name="submit" onclick="onClick()">
+    </span>
+</div>
+<div id="graph_section">
+    <svg id="main_graph"></svg>
+    <!-- TODO: tomorrow -->
+</div>
+<div id="poke_section">
+    <div id="description">
+        <div id="image">
+            <img alt="pokemon" id="poke_front"
+                 src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png"/>
+        </div>
+        <table id="info_table">
+            <tr>
+                <td class="column">ID:</td>
+                <td class="value" id="id">150</td>
+            </tr>
+            <tr>
+                <td class="column">Type:</td>
+                <td class="value" id="type">psychic</td>
+            </tr>
+            <tr>
+                <!-- This will need to be /100 -->
+                <td class="column">Weight:</td>
+                <td class="value" id="weight">122 KG</td>
+            </tr>
+            <tr>
+                <!-- /10 -->
+                <td class="column">Height:</td>
+                <td class="value" id="height">2 M</td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>
